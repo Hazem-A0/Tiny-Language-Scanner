@@ -1,8 +1,8 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-enum class TokenType {
-    SEMICOLON, IF, THEN, END, REPEAT, UNTIL,
+enum class TokenType { //added ELSE
+    SEMICOLON, IF, THEN, ELSE, END, REPEAT, UNTIL,
     IDENTIFIER, ASSIGN, READ, WRITE,
     LESSTHAN, EQUAL, PLUS, MINUS, MUL, DIV,
     OPENBRACKET, CLOSEDBRACKET, NUMBER,
@@ -14,6 +14,7 @@ string tokenTypeToString(TokenType t) {
         case TokenType::SEMICOLON: return "SEMICOLON";
         case TokenType::IF: return "IF";
         case TokenType::THEN: return "THEN";
+        case TokenType::ELSE: return "ELSE"; //added ELSE
         case TokenType::END: return "END";
         case TokenType::REPEAT: return "REPEAT";
         case TokenType::UNTIL: return "UNTIL";
@@ -38,6 +39,7 @@ string tokenTypeToString(TokenType t) {
 static unordered_map<string, TokenType> keywords = {
     {"if", TokenType::IF},
     {"then", TokenType::THEN},
+    {"else", TokenType::ELSE}, //added ELSE
     {"end", TokenType::END},
     {"repeat", TokenType::REPEAT},
     {"until", TokenType::UNTIL},
@@ -62,10 +64,12 @@ public:
         if (pos < len) return input[pos];
         return '\0';
     }
+
     char get() {
         if (pos < len) return input[pos++];
         return '\0';
     }
+
     void skipWhitespace() {
         while (isspace((unsigned char)peek())) get();
     }
@@ -74,7 +78,7 @@ public:
         if (peek() == '{') {
             get();
             while (peek() != '\0' && peek() != '}') get();
-            if (peek() == '}') get(); 
+            if (peek() == '}') get();
         }
     }
 
@@ -117,14 +121,16 @@ public:
 
         if (isalpha((unsigned char)c)) {
             string word;
-            while (isalnum((unsigned char)peek())) word.push_back(get());
-    
+            while (isalpha((unsigned char)peek())) word.push_back(get()); //identifier is now letters only [a-z A-Z]+
+
             string lw = word;
             transform(lw.begin(), lw.end(), lw.begin(), [](unsigned char ch){ return tolower(ch); });
             auto it = keywords.find(lw);
+
             if (it != keywords.end()) {
                 return {word, it->second};
-            } else {
+            }
+            else {
                 return {word, TokenType::IDENTIFIER};
             }
         }
@@ -133,6 +139,7 @@ public:
         return {unk, TokenType::UNKNOWN};
     }
 };
+
 
 int main(int argc, char **argv) {
     ios::sync_with_stdio(false);
@@ -152,6 +159,7 @@ int main(int argc, char **argv) {
         cerr << "Error: cannot open input file: " << inpath << "\n";
         return 2;
     }
+
     string src((istreambuf_iterator<char>(fin)), istreambuf_iterator<char>());
     fin.close();
 
