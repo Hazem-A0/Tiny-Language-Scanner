@@ -118,8 +118,8 @@ x , Identifier
 .
 ├── tiny_scanner.cpp     # Main source file
 ├── README.md           # This file
-├── input.tiny          # Sample input file (optional)
-└── output.txt          # Generated output file
+├── input.txt                    # Sample input file
+└── output.txt                  # Generated output file
 ```
 
 ## Notes
