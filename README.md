@@ -116,10 +116,10 @@ x , Identifier
 ## Project Structure
 ```
 .
-├── tiny_scanner.cpp     # Main source file
-├── README.md           # This file
-├── input.txt                    # Sample input file
-└── output.txt                  # Generated output file
+├── tiny_scanner.cpp # Main source file
+├── README.md # This file
+├── input.txt # Sample input file
+└── output.txt # Generated output file
 ```
 
 ## Notes
