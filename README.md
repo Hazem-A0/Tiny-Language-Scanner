@@ -22,6 +22,7 @@ This project implements a scanner that reads TINY language source code and break
 | SEMICOLON | `;` |
 | IF | `if` |
 | THEN | `then` |
+| ELSE | `else` |
 | END | `end` |
 | REPEAT | `repeat` |
 | UNTIL | `until` |
@@ -39,15 +40,9 @@ This project implements a scanner that reads TINY language source code and break
 | CLOSEDBRACKET | `)` |
 | NUMBER | `12`, `289` |
 
-## Building
-
-### Prerequisites
-- C++ compiler (supporting C++11 or later)
-- GCC/MinGW for Windows
-
-### Compilation
+## Compilation
 ```bash
-g++ -std=c++11 -o tiny_scanner.exe tiny_scanner.cpp
+g++ tiny_scanner.cpp -o tiny_scanner.exe -static -static-libgcc -static-libstdc++
 ```
 
 ## Usage
@@ -60,16 +55,21 @@ tiny_scanner.exe <input_file> <output_file>
 tiny_scanner.exe input.tiny output.txt
 ```
 
-### Input Example (input.tiny)
+### Input Example (input.txt)
 ```
 { Sample TINY program }
 x := 5;
 if x < 10 then
-    write x
-end
+  write x
+else
+  write 0
+end;
+repeat
+  x := x + 1
+until x = 10
 ```
 
-### Output Example (output.txt)
+### Output (output.txt)
 ```
 x , Identifier
 := , assign
@@ -82,7 +82,21 @@ x , Identifier
 then , THEN
 write , WRITE
 x , Identifier
+else , ELSE
+write , WRITE
+0 , number
 end , END
+; , SEMICOLON
+repeat , REPEAT
+x , Identifier
+:= , assign
+x , Identifier
++ , PLUS
+1 , number
+until , UNTIL
+x , Identifier
+= , EQUAL
+10 , number
 ```
 
 ## Implementation Details

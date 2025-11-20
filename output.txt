@@ -9,6 +9,9 @@ x , Identifier
 then , THEN
 write , WRITE
 x , Identifier
+else , ELSE
+write , WRITE
+0 , number
 end , END
 ; , SEMICOLON
 repeat , REPEAT
