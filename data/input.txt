@@ -1,0 +1,9 @@
+x := 5;
+if x < 10 then
+  write x
+else
+  write 0
+end;
+repeat
+  x := x + 1
+until x = 10
