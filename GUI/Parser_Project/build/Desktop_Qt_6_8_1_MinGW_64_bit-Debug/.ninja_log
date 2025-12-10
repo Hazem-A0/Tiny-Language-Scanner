@@ -1,0 +1,21 @@
+# ninja log v6
+32	208	7869208657502551	D:/college/4_senior_2/3_Compilers/project/part 2/GUI_Main/Parser_Project/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/Parser_Project_autogen/mocs_compilation.cpp	fcb2ed805156a7a7
+32	208	7869208657502551	D:/college/4_senior_2/3_Compilers/project/part 2/GUI_Main/Parser_Project/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/Parser_Project_autogen/timestamp	fcb2ed805156a7a7
+32	208	7869208657502551	Parser_Project_autogen/mocs_compilation.cpp	fcb2ed805156a7a7
+32	208	7869208657502551	Parser_Project_autogen/timestamp	fcb2ed805156a7a7
+667	2636	7869187854365058	CMakeFiles/Parser_Project.dir/Parser_Project_autogen/mocs_compilation.cpp.obj	7f9a9eab453be333
+671	2723	7869187854405084	CMakeFiles/Parser_Project.dir/main.cpp.obj	c590e0e2fbd55b6b
+209	2838	7869208659272648	CMakeFiles/Parser_Project.dir/inputwindow.cpp.obj	67ba1c22509d1248
+2838	3051	7869208685563901	Parser_Project.exe	35bcc8cbd968f5cd
+33	277	7869208777070098	Parser_Project_autogen/timestamp	fcb2ed805156a7a7
+33	277	7869208777070098	Parser_Project_autogen/mocs_compilation.cpp	fcb2ed805156a7a7
+33	277	7869208777070098	D:/college/4_senior_2/3_Compilers/project/part 2/GUI_Main/Parser_Project/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/Parser_Project_autogen/timestamp	fcb2ed805156a7a7
+33	277	7869208777070098	D:/college/4_senior_2/3_Compilers/project/part 2/GUI_Main/Parser_Project/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/Parser_Project_autogen/mocs_compilation.cpp	fcb2ed805156a7a7
+278	3168	7869208779520292	CMakeFiles/Parser_Project.dir/inputwindow.cpp.obj	67ba1c22509d1248
+3169	3400	7869208808430699	Parser_Project.exe	35bcc8cbd968f5cd
+11	170	7869209064155946	Parser_Project_autogen/timestamp	fcb2ed805156a7a7
+11	170	7869209064155946	Parser_Project_autogen/mocs_compilation.cpp	fcb2ed805156a7a7
+11	170	7869209064155946	D:/college/4_senior_2/3_Compilers/project/part 2/GUI_Main/Parser_Project/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/Parser_Project_autogen/timestamp	fcb2ed805156a7a7
+11	170	7869209064155946	D:/college/4_senior_2/3_Compilers/project/part 2/GUI_Main/Parser_Project/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/Parser_Project_autogen/mocs_compilation.cpp	fcb2ed805156a7a7
+171	2525	7869209065763941	CMakeFiles/Parser_Project.dir/inputwindow.cpp.obj	67ba1c22509d1248
+2525	2705	7869209089305428	Parser_Project.exe	35bcc8cbd968f5cd

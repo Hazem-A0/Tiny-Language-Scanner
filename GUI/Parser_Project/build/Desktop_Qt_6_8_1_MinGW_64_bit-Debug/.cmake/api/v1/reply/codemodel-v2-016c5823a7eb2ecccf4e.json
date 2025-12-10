@@ -1,0 +1,79 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-b1c19e0f24c25a3d3cda.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "Parser_Project",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Parser_Project::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Parser_Project-Debug-a5f76c38f417bed2990d.json",
+					"name" : "Parser_Project",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Parser_Project_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Parser_Project_autogen-Debug-8af0d6f78df0b06cfa60.json",
+					"name" : "Parser_Project_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Parser_Project_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Parser_Project_autogen_timestamp_deps-Debug-a80a6cf044636e25fef1.json",
+					"name" : "Parser_Project_autogen_timestamp_deps",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "D:/college/4_senior_2/3_Compilers/project/part 2/GUI_Main/Parser_Project/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug",
+		"source" : "D:/college/4_senior_2/3_Compilers/project/part 2/GUI_Main/Parser_Project"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}

@@ -1,0 +1,9 @@
+D:/college/4_senior_2/3_Compilers/project/part 2/GUI_Main/Parser_Project/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/Parser_Project.dir
+D:/college/4_senior_2/3_Compilers/project/part 2/GUI_Main/Parser_Project/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/edit_cache.dir
+D:/college/4_senior_2/3_Compilers/project/part 2/GUI_Main/Parser_Project/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/rebuild_cache.dir
+D:/college/4_senior_2/3_Compilers/project/part 2/GUI_Main/Parser_Project/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/list_install_components.dir
+D:/college/4_senior_2/3_Compilers/project/part 2/GUI_Main/Parser_Project/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/install.dir
+D:/college/4_senior_2/3_Compilers/project/part 2/GUI_Main/Parser_Project/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/install/local.dir
+D:/college/4_senior_2/3_Compilers/project/part 2/GUI_Main/Parser_Project/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/install/strip.dir
+D:/college/4_senior_2/3_Compilers/project/part 2/GUI_Main/Parser_Project/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/Parser_Project_autogen_timestamp_deps.dir
+D:/college/4_senior_2/3_Compilers/project/part 2/GUI_Main/Parser_Project/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/Parser_Project_autogen.dir
