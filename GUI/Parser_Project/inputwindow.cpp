@@ -1,4 +1,4 @@
-#include "/inputwindow.h"
+#include "inputwindow.h"
 #include "./ui_inputwindow.h"
 
 #include <QFileDialog> // for browse button
@@ -16,6 +16,7 @@
 #include <QPixmap>   // For setting custom icon
 #include <QScrollArea>
 #include <QDir>
+#include <QDateTime>
 #include <algorithm>
 #include <sstream>
 
@@ -256,14 +257,16 @@ void InputWindow::displaySyntaxTree()
     int result = system(command.toStdString().c_str());
     
     if (result == 0 && QFile::exists(pngPath)) {
-        // Load and display the image
+        // Load and display the image at full size
         QPixmap pixmap(pngPath);
         if (!pixmap.isNull()) {
-            ui->imageLabel->setPixmap(pixmap.scaled(ui->imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            // Display image at full size - scroll area will handle scrolling
+            ui->imageLabel->setPixmap(pixmap);
+            ui->imageLabel->adjustSize(); // Resize label to fit the full image
             ui->imageLabel->setScaledContents(false);
             currentImagePath = pngPath;
             ui->tabWidget->setCurrentIndex(1); // Switch to syntax tree tab
-            ui->statusbar->showMessage("Syntax tree generated and displayed successfully!", 3000);
+            ui->statusbar->showMessage("Syntax tree generated and displayed successfully! Use scroll to view full image.", 3000);
         } else {
             QMessageBox::warning(this, "Error", "Could not load the generated image.");
         }
@@ -281,39 +284,73 @@ void InputWindow::displaySyntaxTree()
 
 void InputWindow::saveOutput()
 {
-    QString fileName = QFileDialog::getSaveFileName(
-        this,
-        "Save Output",
-        QDir::homePath() + "/output.txt",
-        "Text Files (*.txt);;All Files (*.*)"
-    );
-    
-    if (fileName.isEmpty()) {
-        return; // User cancelled
+    // Create data folder if it doesn't exist
+    QString dataFolderPath = QDir::currentPath() + "/../../data";
+    QDir dataDir;
+    if (!dataDir.exists(dataFolderPath)) {
+        dataDir.mkpath(dataFolderPath);
     }
     
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, "Error", "Could not save file.");
+    // Generate timestamp for unique filenames
+    QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+    
+    // Save tokens to text file
+    QString tokensFilePath = dataFolderPath + "/tokens_" + timestamp + ".txt";
+    QFile tokensFile(tokensFilePath);
+    if (tokensFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream out(&tokensFile);
+        
+        // Save tokens
+        out << "=== TOKENS ===\n";
+        for (const auto& token : tokens) {
+            out << QString::fromStdString(token.value) << ", " 
+                << QString::fromStdString(tokenTypeToString(token.type)) << "\n";
+        }
+        
+        // Save syntax tree text representation
+        if (syntaxTree) {
+            out << "\n=== SYNTAX TREE ===\n";
+            out << QString::fromStdString(syntaxTree->toString());
+        }
+        
+        tokensFile.close();
+    } else {
+        QMessageBox::warning(this, "Error", "Could not save tokens file.");
         return;
     }
     
-    QTextStream out(&file);
+    // Save PNG image if it exists
+    QString savedFiles = "Tokens saved to: " + tokensFilePath;
     
-    // Save tokens
-    out << "=== TOKENS ===\n";
-    for (const auto& token : tokens) {
-        out << QString::fromStdString(token.value) << ", " 
-            << QString::fromStdString(tokenTypeToString(token.type)) << "\n";
+    if (!currentImagePath.isEmpty() && QFile::exists(currentImagePath)) {
+        QString pngFilePath = dataFolderPath + "/syntax_tree_" + timestamp + ".png";
+        
+        if (QFile::copy(currentImagePath, pngFilePath)) {
+            savedFiles += "\n\nSyntax tree image saved to: " + pngFilePath;
+        } else {
+            // If copy fails, try to regenerate the PNG
+            if (syntaxTree) {
+                std::string dotContent = syntaxTree->toGraphViz();
+                QString dotPath = dataFolderPath + "/syntax_tree_" + timestamp + ".dot";
+                
+                QFile dotFile(dotPath);
+                if (dotFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                    QTextStream out(&dotFile);
+                    out << QString::fromStdString(dotContent);
+                    dotFile.close();
+                    
+                    QString command = QString("dot -Tpng \"%1\" -o \"%2\"").arg(dotPath).arg(pngFilePath);
+                    int result = system(command.toStdString().c_str());
+                    
+                    if (result == 0) {
+                        savedFiles += "\n\nSyntax tree image saved to: " + pngFilePath;
+                    }
+                }
+            }
+        }
     }
     
-    // Save syntax tree
-    if (syntaxTree) {
-        out << "\n=== SYNTAX TREE ===\n";
-        out << QString::fromStdString(syntaxTree->toString());
-    }
-    
-    file.close();
-    QMessageBox::information(this, "Success", "Output saved successfully!");
+    QMessageBox::information(this, "Success", savedFiles);
+    ui->statusbar->showMessage("Files saved to data folder!", 3000);
 }
 
