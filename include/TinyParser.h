@@ -93,8 +93,13 @@ public:
                     if(firstchild == child)
                         result += "  node" + std::to_string(myId) + " -- node" + std::to_string(childStartId) + ";\n";
                     else {
-                        result += "  node" + std::to_string(firstChildId) + " -- node" + std::to_string(childStartId) + ";\n";
-                        result += " { rank = same; node" + std::to_string(firstChildId) + " ; node" + std::to_string(childStartId) + ";}\n";
+                        if(this->nodeType == "If-Statement" && children.size()>2 && child==children.back()) {
+                            result += "  node" + std::to_string(myId) + " -- node" + std::to_string(childStartId) + ";\n";
+                        }else {
+                            result += "  node" + std::to_string(firstChildId) + " -- node" + std::to_string(childStartId) + ";\n";
+                            result += " { rank = same; node" + std::to_string(firstChildId) + " ; node" + std::to_string(childStartId) + ";}\n";
+                        }
+
                     }
                 }else {
                     result += "  node" + std::to_string(myId) + " -- node" + std::to_string(childStartId) + ";\n";
