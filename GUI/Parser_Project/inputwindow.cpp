@@ -14,6 +14,8 @@
 #include <QTextDocument>
 #include <QTextBlock>
 #include <QPixmap>   // For setting custom icon
+#include <QScrollArea>
+#include <QDir>
 #include <algorithm>
 #include <sstream>
 
@@ -27,6 +29,10 @@ InputWindow::InputWindow(QWidget *parent)
     
     // Set Code radio button as default
     ui->radioButton->setChecked(true);
+    
+    // Configure image label for proper scaling
+    ui->imageLabel->setAlignment(Qt::AlignCenter);
+    ui->imageLabel->setScaledContents(false);
 }
 
 InputWindow::~InputWindow()
@@ -139,8 +145,9 @@ void InputWindow::scanCode()
     if (tokens.empty()) {
         QMessageBox::warning(this, "Scan Error", "No tokens found in the input code.");
     } else {
-        QMessageBox::information(this, "Scan Complete", 
-            QString("Successfully scanned %1 tokens.").arg(tokens.size()));
+        // Display tokens in the UI
+        displayTokensInUI();
+        ui->statusbar->showMessage(QString("Successfully scanned %1 tokens.").arg(tokens.size()), 3000);
     }
 }
 
@@ -174,9 +181,29 @@ void InputWindow::scanTokens()
     if (tokens.size() <= 1) {
         QMessageBox::warning(this, "Parse Error", "No valid tokens found. Format: value,TYPE");
     } else {
-        QMessageBox::information(this, "Tokens Loaded", 
-            QString("Successfully loaded %1 tokens.").arg(tokens.size() - 1));
+        // Display tokens in the UI
+        displayTokensInUI();
+        ui->statusbar->showMessage(QString("Successfully loaded %1 tokens.").arg(tokens.size() - 1), 3000);
     }
+}
+
+void InputWindow::displayTokensInUI()
+{
+    // Display tokens in the tokens tab
+    QString tokenText;
+    int count = 0;
+    
+    for (const auto& token : tokens) {
+        if (token.type == TokenType::END_OF_FILE) continue;
+        count++;
+        tokenText += QString("%1. %2, %3\n")
+            .arg(count)
+            .arg(QString::fromStdString(token.value).isEmpty() ? "<empty>" : QString::fromStdString(token.value))
+            .arg(QString::fromStdString(tokenTypeToString(token.type)));
+    }
+    
+    ui->tokensOutput->setPlainText(tokenText);
+    ui->tabWidget->setCurrentIndex(0); // Switch to tokens tab
 }
 
 void InputWindow::parseTokens()
@@ -191,7 +218,7 @@ void InputWindow::parseTokens()
     
     if (result.success) {
         syntaxTree = result.ast;
-        QMessageBox::information(this, "Parse Complete", "Successfully parsed the input!");
+        ui->statusbar->showMessage("Successfully parsed the input!", 3000);
     } else {
         QString errorMsg = "Parse errors occurred:\n";
         for (const auto& error : result.errors) {
@@ -208,35 +235,9 @@ void InputWindow::displaySyntaxTree()
         return;
     }
     
-    // Generate DOT format and save to file
+    // Generate DOT format and save to temporary file
     std::string dotContent = syntaxTree->toGraphViz();
     
-    QString fileName = QFileDialog::getSaveFileName(
-        this,
-        "Save Syntax Tree",
-        QDir::homePath() + "/syntax_tree.png",
-        "PNG Images (*.png);;DOT Files (*.dot);;All Files (*.*)"
-    );
-    
-    if (fileName.isEmpty()) {
-        return; // User cancelled
-    }
-    
-    // If user wants DOT file
-    if (fileName.endsWith(".dot")) {
-        QFile file(fileName);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            QTextStream out(&file);
-            out << QString::fromStdString(dotContent);
-            file.close();
-            QMessageBox::information(this, "Success", "DOT file saved successfully!");
-        } else {
-            QMessageBox::warning(this, "Error", "Could not save DOT file.");
-        }
-        return;
-    }
-    
-    // For PNG, we need to save DOT first and then call GraphViz
     QString dotPath = QDir::temp().filePath("syntax_tree.dot");
     QFile dotFile(dotPath);
     if (!dotFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -248,22 +249,33 @@ void InputWindow::displaySyntaxTree()
     out << QString::fromStdString(dotContent);
     dotFile.close();
     
-    // Try to call GraphViz to generate PNG
-    QString pngPath = fileName;
-    if (!pngPath.endsWith(".png")) {
-        pngPath += ".png";
-    }
+    // Generate PNG to temporary location
+    QString pngPath = QDir::temp().filePath("syntax_tree.png");
     
     QString command = QString("dot -Tpng \"%1\" -o \"%2\"").arg(dotPath).arg(pngPath);
     int result = system(command.toStdString().c_str());
     
-    if (result == 0) {
-        QMessageBox::information(this, "Success", 
-            QString("Syntax tree image saved to:\n%1").arg(pngPath));
+    if (result == 0 && QFile::exists(pngPath)) {
+        // Load and display the image
+        QPixmap pixmap(pngPath);
+        if (!pixmap.isNull()) {
+            ui->imageLabel->setPixmap(pixmap.scaled(ui->imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            ui->imageLabel->setScaledContents(false);
+            currentImagePath = pngPath;
+            ui->tabWidget->setCurrentIndex(1); // Switch to syntax tree tab
+            ui->statusbar->showMessage("Syntax tree generated and displayed successfully!", 3000);
+        } else {
+            QMessageBox::warning(this, "Error", "Could not load the generated image.");
+        }
     } else {
         QMessageBox::warning(this, "GraphViz Error", 
             "Could not generate PNG. Make sure GraphViz is installed.\n"
+            "You can install it from: https://graphviz.org/download/\n\n"
             "DOT file saved at: " + dotPath);
+        
+        // Show DOT content as fallback
+        ui->imageLabel->setText("GraphViz not found. Install GraphViz to view the syntax tree image.\n\nDOT file location: " + dotPath);
+        ui->tabWidget->setCurrentIndex(1);
     }
 }
 

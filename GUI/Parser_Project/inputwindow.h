@@ -37,12 +37,14 @@ private:
     std::vector<Token> tokens;
     std::shared_ptr<ASTNode> syntaxTree;
     bool isCodeMode;  // true = code mode, false = tokens mode
+    QString currentImagePath; // Store path to generated image
     
     // Helper methods
     void processInput();
     void scanCode();
     void scanTokens();
     void parseTokens();
+    void displayTokensInUI();
     void displaySyntaxTree();
     void saveOutput();
 };

@@ -16,13 +16,13 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
 
 set(PROJECT_SOURCES
-        main.cpp
-        inputwindow.cpp
-        inputwindow.h
-        inputwindow.ui
-        ../../include/TinyCommon.h
-        ../../include/TinyScanner.h
-        ../../include/TinyParser.h
+    main.cpp
+    inputwindow.cpp
+    inputwindow.h
+    inputwindow.ui
+    ../../include/TinyCommon.h
+    ../../include/TinyScanner.h
+    ../../include/TinyParser.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
