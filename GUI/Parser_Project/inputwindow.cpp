@@ -23,13 +23,9 @@
 InputWindow::InputWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::InputWindow)
-    , isCodeMode(true)
 {
     ui->setupUi(this);
     setWallpaper();
-    
-    // Set Code radio button as default
-    ui->radioButton->setChecked(true);
     
     // Configure image label for proper scaling
     ui->imageLabel->setAlignment(Qt::AlignCenter);
@@ -41,13 +37,23 @@ InputWindow::~InputWindow()
     delete ui;
 }
 void InputWindow::setWallpaper() {
-    QPixmap pixmap("icons/i.jpg"); // Better use resource system
-    QPalette palette = this->palette();
-
-    palette.setBrush(QPalette::Window, pixmap.scaled(size(), Qt::IgnoreAspectRatio));
-    setAutoFillBackground(true);
-    setPalette(palette);
-    qDebug() << QFile::exists(":/icons/i.jpg");
+    // Try to load background from data folder first
+    QString dataBackground = QDir::currentPath() + "/../../data/background.png";
+    QPixmap pixmap;
+    
+    if (QFile::exists(dataBackground)) {
+        pixmap.load(dataBackground);
+    } else {
+        // Fallback to icons folder
+        pixmap.load("icons/i.jpg");
+    }
+    
+    if (!pixmap.isNull()) {
+        QPalette palette = this->palette();
+        palette.setBrush(QPalette::Window, pixmap.scaled(size(), Qt::IgnoreAspectRatio));
+        setAutoFillBackground(true);
+        setPalette(palette);
+    }
 }
 
 void browseAndLoadFile(QPlainTextEdit* plainTextEdit) {
@@ -97,31 +103,10 @@ void InputWindow::on_pushButton_3_clicked()
     saveOutput();
 }
 
-void InputWindow::on_radioButton_toggled(bool checked)
-{
-    // Code radio button toggled
-    if (checked) {
-        isCodeMode = true;
-    }
-}
-
-void InputWindow::on_radioButton_2_toggled(bool checked)
-{
-    // Tokens radio button toggled
-    if (checked) {
-        isCodeMode = false;
-    }
-}
-
 void InputWindow::processInput()
 {
-    if (isCodeMode) {
-        // Process as code
-        scanCode();
-    } else {
-        // Process as tokens
-        scanTokens();
-    }
+    // Process as code
+    scanCode();
     
     // Parse the tokens and display syntax tree
     if (!tokens.empty()) {
@@ -284,18 +269,24 @@ void InputWindow::displaySyntaxTree()
 
 void InputWindow::saveOutput()
 {
-    // Create data folder if it doesn't exist
-    QString dataFolderPath = QDir::currentPath() + "/../../data";
-    QDir dataDir;
-    if (!dataDir.exists(dataFolderPath)) {
-        dataDir.mkpath(dataFolderPath);
+    // Let user choose directory
+    QString defaultPath = QDir::currentPath() + "/../../data";
+    QString saveDirectory = QFileDialog::getExistingDirectory(
+        this,
+        "Choose Directory to Save Outputs",
+        defaultPath,
+        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks
+    );
+    
+    if (saveDirectory.isEmpty()) {
+        return; // User cancelled
     }
     
     // Generate timestamp for unique filenames
     QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
     
     // Save tokens to text file
-    QString tokensFilePath = dataFolderPath + "/tokens_" + timestamp + ".txt";
+    QString tokensFilePath = saveDirectory + "/tokens_" + timestamp + ".txt";
     QFile tokensFile(tokensFilePath);
     if (tokensFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream out(&tokensFile);
@@ -323,7 +314,7 @@ void InputWindow::saveOutput()
     QString savedFiles = "Tokens saved to: " + tokensFilePath;
     
     if (!currentImagePath.isEmpty() && QFile::exists(currentImagePath)) {
-        QString pngFilePath = dataFolderPath + "/syntax_tree_" + timestamp + ".png";
+        QString pngFilePath = saveDirectory + "/syntax_tree_" + timestamp + ".png";
         
         if (QFile::copy(currentImagePath, pngFilePath)) {
             savedFiles += "\n\nSyntax tree image saved to: " + pngFilePath;
@@ -331,7 +322,7 @@ void InputWindow::saveOutput()
             // If copy fails, try to regenerate the PNG
             if (syntaxTree) {
                 std::string dotContent = syntaxTree->toGraphViz();
-                QString dotPath = dataFolderPath + "/syntax_tree_" + timestamp + ".dot";
+                QString dotPath = saveDirectory + "/syntax_tree_" + timestamp + ".dot";
                 
                 QFile dotFile(dotPath);
                 if (dotFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -351,6 +342,6 @@ void InputWindow::saveOutput()
     }
     
     QMessageBox::information(this, "Success", savedFiles);
-    ui->statusbar->showMessage("Files saved to data folder!", 3000);
+    ui->statusbar->showMessage("Files saved successfully!", 3000);
 }
 

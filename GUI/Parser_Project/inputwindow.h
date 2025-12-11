@@ -26,8 +26,6 @@ private slots:
     void on_pushButton_clicked();        // Browse button
     void on_pushButton_2_clicked();      // Show Syntax Tree button
     void on_pushButton_3_clicked();      // Save button
-    void on_radioButton_toggled(bool checked);   // Code radio button
-    void on_radioButton_2_toggled(bool checked); // Tokens radio button
 
 private:
     Ui::InputWindow *ui;
@@ -36,7 +34,6 @@ private:
     // Backend integration variables
     std::vector<Token> tokens;
     std::shared_ptr<ASTNode> syntaxTree;
-    bool isCodeMode;  // true = code mode, false = tokens mode
     QString currentImagePath; // Store path to generated image
     
     // Helper methods
