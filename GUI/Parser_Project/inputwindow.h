@@ -4,9 +4,9 @@
 #include <QMainWindow>
 #include <memory>
 #include <vector>
-#include "../../include/TinyCommon.h"
-#include "../../include/TinyScanner.h"
-#include "../../include/TinyParser.h"
+#include "include/TinyCommon.h"
+#include "include/TinyScanner.h"
+#include "include/TinyParser.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

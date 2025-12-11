@@ -1,4 +1,4 @@
-#include "inputwindow.h"
+#include "/inputwindow.h"
 #include "./ui_inputwindow.h"
 
 #include <QFileDialog> // for browse button
@@ -214,7 +214,7 @@ void InputWindow::parseTokens()
     }
     
     TinyParser parser;
-    ParseResult result = parser.parse(tokens);
+    TinyParser::ParseResult result = parser.parse(tokens);
     
     if (result.success) {
         syntaxTree = result.ast;

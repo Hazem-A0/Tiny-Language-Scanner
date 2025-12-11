@@ -1,4 +1,4 @@
-#include "inputwindow.h"
+#include "./inputwindow.h"
 
 #include <QApplication>
 
