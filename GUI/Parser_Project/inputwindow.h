@@ -2,6 +2,11 @@
 #define INPUTWINDOW_H
 
 #include <QMainWindow>
+#include <memory>
+#include <vector>
+#include "../../include/TinyCommon.h"
+#include "../../include/TinyScanner.h"
+#include "../../include/TinyParser.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -18,10 +23,26 @@ public:
     ~InputWindow();
 
 private slots:
-    void on_pushButton_clicked();
+    void on_pushButton_clicked();        // Browse button
+    void on_pushButton_2_clicked();      // Show Syntax Tree button
+    void on_pushButton_3_clicked();      // Save button
 
 private:
     Ui::InputWindow *ui;
-    void setWallpaper(); // Function declaration for setting wallpape
+    void setWallpaper(); // Function declaration for setting wallpaper
+    
+    // Backend integration variables
+    std::vector<Token> tokens;
+    std::shared_ptr<ASTNode> syntaxTree;
+    QString currentImagePath; // Store path to generated image
+    
+    // Helper methods
+    void processInput();
+    void scanCode();
+    void scanTokens();
+    void parseTokens();
+    void displayTokensInUI();
+    void displaySyntaxTree();
+    void saveOutput();
 };
 #endif // INPUTWINDOW_H
