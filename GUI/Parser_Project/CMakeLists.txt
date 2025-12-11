@@ -12,11 +12,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
+# Include backend directories
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
+
 set(PROJECT_SOURCES
         main.cpp
         inputwindow.cpp
         inputwindow.h
         inputwindow.ui
+        ../../include/TinyCommon.h
+        ../../include/TinyScanner.h
+        ../../include/TinyParser.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

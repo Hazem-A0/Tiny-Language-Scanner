@@ -14,14 +14,19 @@
 #include <QTextDocument>
 #include <QTextBlock>
 #include <QPixmap>   // For setting custom icon
+#include <algorithm>
+#include <sstream>
 
 InputWindow::InputWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::InputWindow)
+    , isCodeMode(true)
 {
-
     ui->setupUi(this);
     setWallpaper();
+    
+    // Set Code radio button as default
+    ui->radioButton->setChecked(true);
 }
 
 InputWindow::~InputWindow()
@@ -71,5 +76,232 @@ void browseAndLoadFile(QPlainTextEdit* plainTextEdit) {
 void InputWindow::on_pushButton_clicked()
 {
     browseAndLoadFile(ui->inputField);
+}
+
+void InputWindow::on_pushButton_2_clicked()
+{
+    // Show Syntax Tree button clicked
+    processInput();
+}
+
+void InputWindow::on_pushButton_3_clicked()
+{
+    // Save button clicked
+    saveOutput();
+}
+
+void InputWindow::on_radioButton_toggled(bool checked)
+{
+    // Code radio button toggled
+    if (checked) {
+        isCodeMode = true;
+    }
+}
+
+void InputWindow::on_radioButton_2_toggled(bool checked)
+{
+    // Tokens radio button toggled
+    if (checked) {
+        isCodeMode = false;
+    }
+}
+
+void InputWindow::processInput()
+{
+    if (isCodeMode) {
+        // Process as code
+        scanCode();
+    } else {
+        // Process as tokens
+        scanTokens();
+    }
+    
+    // Parse the tokens and display syntax tree
+    if (!tokens.empty()) {
+        parseTokens();
+        displaySyntaxTree();
+    }
+}
+
+void InputWindow::scanCode()
+{
+    // Get input text from the plain text edit
+    QString inputText = ui->inputField->toPlainText();
+    std::string code = inputText.toStdString();
+    
+    // Normalize newlines
+    std::replace(code.begin(), code.end(), '\r', '\n');
+    
+    // Create scanner and scan the code
+    Scanner scanner(code);
+    tokens = scanner.scanAll();
+    
+    if (tokens.empty()) {
+        QMessageBox::warning(this, "Scan Error", "No tokens found in the input code.");
+    } else {
+        QMessageBox::information(this, "Scan Complete", 
+            QString("Successfully scanned %1 tokens.").arg(tokens.size()));
+    }
+}
+
+void InputWindow::scanTokens()
+{
+    // Parse tokens from input field (format: token_value,token_type)
+    QString inputText = ui->inputField->toPlainText();
+    tokens.clear();
+    
+    QStringList lines = inputText.split('\n', Qt::SkipEmptyParts);
+    
+    for (const QString& line : lines) {
+        QString trimmed = line.trimmed();
+        if (trimmed.isEmpty()) continue;
+        
+        QStringList parts = trimmed.split(',');
+        if (parts.size() >= 2) {
+            std::string value = parts[0].trimmed().toStdString();
+            std::string typeStr = parts[1].trimmed().toStdString();
+            
+            TokenType type = stringToTokenType(typeStr);
+            tokens.push_back(Token(value, type));
+        }
+    }
+    
+    // Add EOF token if not present
+    if (tokens.empty() || tokens.back().type != TokenType::END_OF_FILE) {
+        tokens.push_back(Token("", TokenType::END_OF_FILE));
+    }
+    
+    if (tokens.size() <= 1) {
+        QMessageBox::warning(this, "Parse Error", "No valid tokens found. Format: value,TYPE");
+    } else {
+        QMessageBox::information(this, "Tokens Loaded", 
+            QString("Successfully loaded %1 tokens.").arg(tokens.size() - 1));
+    }
+}
+
+void InputWindow::parseTokens()
+{
+    if (tokens.empty()) {
+        QMessageBox::warning(this, "Parse Error", "No tokens to parse.");
+        return;
+    }
+    
+    TinyParser parser;
+    ParseResult result = parser.parse(tokens);
+    
+    if (result.success) {
+        syntaxTree = result.ast;
+        QMessageBox::information(this, "Parse Complete", "Successfully parsed the input!");
+    } else {
+        QString errorMsg = "Parse errors occurred:\n";
+        for (const auto& error : result.errors) {
+            errorMsg += QString::fromStdString(error) + "\n";
+        }
+        QMessageBox::critical(this, "Parse Error", errorMsg);
+    }
+}
+
+void InputWindow::displaySyntaxTree()
+{
+    if (!syntaxTree) {
+        QMessageBox::warning(this, "Display Error", "No syntax tree to display.");
+        return;
+    }
+    
+    // Generate DOT format and save to file
+    std::string dotContent = syntaxTree->toGraphViz();
+    
+    QString fileName = QFileDialog::getSaveFileName(
+        this,
+        "Save Syntax Tree",
+        QDir::homePath() + "/syntax_tree.png",
+        "PNG Images (*.png);;DOT Files (*.dot);;All Files (*.*)"
+    );
+    
+    if (fileName.isEmpty()) {
+        return; // User cancelled
+    }
+    
+    // If user wants DOT file
+    if (fileName.endsWith(".dot")) {
+        QFile file(fileName);
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream out(&file);
+            out << QString::fromStdString(dotContent);
+            file.close();
+            QMessageBox::information(this, "Success", "DOT file saved successfully!");
+        } else {
+            QMessageBox::warning(this, "Error", "Could not save DOT file.");
+        }
+        return;
+    }
+    
+    // For PNG, we need to save DOT first and then call GraphViz
+    QString dotPath = QDir::temp().filePath("syntax_tree.dot");
+    QFile dotFile(dotPath);
+    if (!dotFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "Error", "Could not create temporary DOT file.");
+        return;
+    }
+    
+    QTextStream out(&dotFile);
+    out << QString::fromStdString(dotContent);
+    dotFile.close();
+    
+    // Try to call GraphViz to generate PNG
+    QString pngPath = fileName;
+    if (!pngPath.endsWith(".png")) {
+        pngPath += ".png";
+    }
+    
+    QString command = QString("dot -Tpng \"%1\" -o \"%2\"").arg(dotPath).arg(pngPath);
+    int result = system(command.toStdString().c_str());
+    
+    if (result == 0) {
+        QMessageBox::information(this, "Success", 
+            QString("Syntax tree image saved to:\n%1").arg(pngPath));
+    } else {
+        QMessageBox::warning(this, "GraphViz Error", 
+            "Could not generate PNG. Make sure GraphViz is installed.\n"
+            "DOT file saved at: " + dotPath);
+    }
+}
+
+void InputWindow::saveOutput()
+{
+    QString fileName = QFileDialog::getSaveFileName(
+        this,
+        "Save Output",
+        QDir::homePath() + "/output.txt",
+        "Text Files (*.txt);;All Files (*.*)"
+    );
+    
+    if (fileName.isEmpty()) {
+        return; // User cancelled
+    }
+    
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "Error", "Could not save file.");
+        return;
+    }
+    
+    QTextStream out(&file);
+    
+    // Save tokens
+    out << "=== TOKENS ===\n";
+    for (const auto& token : tokens) {
+        out << QString::fromStdString(token.value) << ", " 
+            << QString::fromStdString(tokenTypeToString(token.type)) << "\n";
+    }
+    
+    // Save syntax tree
+    if (syntaxTree) {
+        out << "\n=== SYNTAX TREE ===\n";
+        out << QString::fromStdString(syntaxTree->toString());
+    }
+    
+    file.close();
+    QMessageBox::information(this, "Success", "Output saved successfully!");
 }
 
